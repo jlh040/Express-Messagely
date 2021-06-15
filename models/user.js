@@ -1,6 +1,7 @@
 /** User class for message.ly */
 const db = require('../db');
 const ExpressError = require('../expressError');
+const bcrypt = require('bcrypt');
 
 
 
@@ -14,25 +15,28 @@ class User {
 
   static async register({username, password, first_name, last_name, phone}) {
 	  try {
-		const results = await db.query(`
-			INSERT INTO users
-			(username, password, first_name, last_name, phone)
-			VALUES
-			($1, $2, $3, $4, $5)
-			RETURNING username, password, first_name, last_name, phone`,
-			[username, password, first_name, last_name, phone]);
-		return results.rows[0];
+      const hashedPW = bcrypt.hash(password, 12);
+      const results = await db.query(`
+        INSERT INTO users
+        (username, password, first_name, last_name, phone)
+        VALUES
+        ($1, $2, $3, $4, $5)
+        RETURNING username, password, first_name, last_name, phone`,
+        [username, hashedPW, first_name, last_name, phone]);
+      return results.rows[0];
 	  }
 	  catch(e) {
-		if (e.code === '23505') {
-			return next(new ExpressError('Username already exists', 400));
-		}
+      if (e.code === '23505') {
+        return next(new ExpressError('Username already exists', 400));
+      }
 	  }
   }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
 
-  static async authenticate(username, password) { }
+  static async authenticate(username, password) {
+
+  }
 
   /** Update last_login_at for user */
 
