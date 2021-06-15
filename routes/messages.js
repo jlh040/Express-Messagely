@@ -2,6 +2,8 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const Message = require('../models/message');
+const { ensureLoggedIn } = require('../middleware/auth');
+const ExpressError = require('../expressError');
 
 /** GET /:id - get detail of message.
  *
@@ -16,10 +18,15 @@ const Message = require('../models/message');
  *
  **/
 
- router.get('/:id', async (req, res, next) => {
+ router.get('/:id', ensureLoggedIn, async (req, res, next) => {
      try {
         const message = await Message.get(req.params.id);
-        return res.json({message});
+        if (req.user.username == message.from_user.username || req.user.username == message.to_user.username ) {
+            return res.json({message});
+        }
+        else {
+            return next(new ExpressError('You must be the sender or recipient to view this', 401));
+        }
      }
      catch(e) {
          return next(e);
