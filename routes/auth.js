@@ -23,8 +23,6 @@ router.post('/login', async (req, res, next) => {
 });
 
 
-
-
 /** POST /register - register user: registers, logs in, and returns token.
  *
  * {username, password, first_name, last_name, phone} => {token}.
@@ -48,7 +46,6 @@ router.post('/register', async (req, res, next) => {
     return next(e);
   }
 });
-
 
 
 module.exports = router;
