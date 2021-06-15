@@ -41,7 +41,7 @@ const ExpressError = require('../expressError');
  *
  **/
 
- router.post('/', async (req, res, next) => {
+ router.post('/', ensureLoggedIn, async (req, res, next) => {
      try {
         const { from_username = req.user.username, to_username, body } = req.body;
         const messageObj = {from_username, to_username, body};
