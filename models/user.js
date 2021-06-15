@@ -102,7 +102,7 @@ class User {
              m.body,
              m.sent_at,
              m.read_at,
-             t.username,
+             m.to_username,
              t.first_name,
              t.last_name,
              t.phone
@@ -116,7 +116,7 @@ class User {
       return results.rows.map(obj => ({
         id: obj[m.id],
         to_user: {
-          username: obj[t.username],
+          username: obj[m.to_username],
           first_name: obj[t.first_name],
           last_name: obj[t.last_name],
           phone: obj[t.phone]
@@ -141,18 +141,30 @@ class User {
              m.body,
              m.sent_at,
              m.read_at,
-             t.username,
-             t.first_name,
-             t.last_name,
-             t.phone
-      FROM users AS t
+             m.from_username,
+             f.first_name,
+             f.last_name,
+             f.phone
+      FROM users AS f
       JOIN messages AS m
-      ON t.username = m.from_username
-      WHERE m.from_username = $1`, [username]);
+      ON f.username = m.to_username
+      WHERE m.to_username = $1`, [username]);
 
       if (!results.rows.length) return next(new ExpressError('Username not found', 400));
-      return results.rows;
-   }
+
+      return results.rows.map(obj => ({
+        id: obj[m.id],
+        from_user: {
+          username: obj[m.from_username],
+          first_name: obj[f.first_name],
+          last_name: obj[f.last_name],
+          phone: obj[f.phone]
+        },
+        body: obj[m.body],
+        sent_at: obj[m.sent_at],
+        read_at: obj[m.read_at]
+      }));
+  }
 }
 
 
