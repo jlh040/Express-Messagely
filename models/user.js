@@ -43,12 +43,11 @@ class User {
     
     if (user) {
       if (await bcrypt.compare(password, user.password)) {
-        const token = jwt.sign({username}, SECRET_KEY);
-        return {msg: 'Welcome back', token};
+        return true;
       }
     }
 
-    return next(new ExpressError('Invalid username/password', 400));
+    return false;
   }
 
   /** Update last_login_at for user */
