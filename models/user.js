@@ -112,7 +112,19 @@ class User {
       WHERE m.from_username = $1`, [username]);
 
       if (!results.rows.length) return next(new ExpressError('Username not found', 400));
-      return results.rows;
+
+      return results.rows.map(obj => ({
+        id: obj[m.id],
+        to_user: {
+          username: obj[t.username],
+          first_name: obj[t.first_name],
+          last_name: obj[t.last_name],
+          phone: obj[t.phone]
+        },
+        body: obj[m.body],
+        sent_at: obj[m.sent_at],
+        read_at: obj[m.read_at]
+      }));
    }
 
   /** Return messages to this user.
@@ -123,7 +135,24 @@ class User {
    *   {id, first_name, last_name, phone}
    */
 
-  static async messagesTo(username) { }
+  static async messagesTo(username) {
+    const results = await db.query(`
+      SELECT m.id,
+             m.body,
+             m.sent_at,
+             m.read_at,
+             t.username,
+             t.first_name,
+             t.last_name,
+             t.phone
+      FROM users AS t
+      JOIN messages AS m
+      ON t.username = m.from_username
+      WHERE m.from_username = $1`, [username]);
+
+      if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+      return results.rows;
+   }
 }
 
 
