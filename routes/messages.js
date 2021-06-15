@@ -66,6 +66,11 @@ const ExpressError = require('../expressError');
  router.post('/:id/read', async (req, res, next) => {
     try {
         const id = req.params.id;
+        const result_ = await db.query(`SELECT to_username FROM messages WHERE id = $1`, [id]);
+        if (req.user.username !== result_.rows[0].to_username) {
+            throw new ExpressError('Only the recipeient can mark as read', 401);
+        }
+
         const result = await Message.markRead(id);
         return res.json({message: {id, read_at: result.read_at}});
     }
