@@ -2,6 +2,8 @@
 const db = require('../db');
 const ExpressError = require('../expressError');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { SECRET_KEY } = require('../config');
 
 
 
@@ -35,7 +37,19 @@ class User {
   /** Authenticate: is this username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
-
+    const results = await db.query(`
+      SELECT username, password FROM users WHERE username = $1`, [username]);
+    const user = results.rows[0];
+    
+    if (user) {
+      if (await bcrypt.compare(password, user.password)) {
+        const token = jwt.sign({username}, SECRET_KEY);
+        return results.json({msg: 'Welcome back', token});
+      }
+    }
+    else {
+      return next(new ExpressError('Invalid username/password', 400));
+    }
   }
 
   /** Update last_login_at for user */
