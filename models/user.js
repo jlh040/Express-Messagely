@@ -96,7 +96,24 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesFrom(username) { }
+  static async messagesFrom(username) {
+    const results = await db.query(`
+      SELECT m.id,
+             m.body,
+             m.sent_at,
+             m.read_at,
+             t.username,
+             t.first_name,
+             t.last_name,
+             t.phone
+      FROM users AS t
+      JOIN messages AS m
+      ON t.username = m.from_username
+      WHERE m.from_username = $1`, [username]);
+
+      if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+      return results.rows;
+   }
 
   /** Return messages to this user.
    *
