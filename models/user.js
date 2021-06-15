@@ -2,6 +2,7 @@
 const db = require('../db');
 const ExpressError = require('../expressError');
 const bcrypt = require('bcrypt');
+const { BCRYPT_WORK_FACTOR } = require('../config');
 
 
 
@@ -15,7 +16,7 @@ class User {
 
   static async register({username, password, first_name, last_name, phone}) {
     try {
-      const hashedPW = await bcrypt.hash(password, 12);
+      const hashedPW = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
       const results = await db.query(`
         INSERT INTO users
         (username, password, first_name, last_name, phone)
