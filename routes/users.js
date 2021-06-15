@@ -45,7 +45,7 @@ router.get('/:username', ensureCorrectUser, async (req, res, next) => {
  *
  **/
 
-router.get('/:username/to', async (req, res, next) => {
+router.get('/:username/to', ensureCorrectUser, async (req, res, next) => {
     try {
         const messages = await User.messagesTo(req.params.username);
         return res.json({messages});
