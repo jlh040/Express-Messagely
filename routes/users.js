@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const User = require('../models/user');
+const { ensureLoggedIn } = require('../middleware/auth');
 
 /** GET / - get list of users.
  *
@@ -9,7 +10,7 @@ const User = require('../models/user');
  *
  **/
 
-router.get('/', async (req, res, next) => {
+router.get('/', ensureLoggedIn, async (req, res, next) => {
     const users = await User.all();
     return res.json(users);
 })
