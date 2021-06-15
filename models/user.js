@@ -28,7 +28,7 @@ class User {
     }
     catch(e) {
       if (e.code === '23505') {
-        return next(new ExpressError('Username already exists', 400))
+        throw new ExpressError('Username already exists', 400);
       }
     }
   }
@@ -55,7 +55,7 @@ class User {
     const results = await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1
       RETURNING username, last_login_at`,
       [username]);
-    if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+    if (!results.rows.length) throw new ExpressError('Username not found', 400);
 
     return results.rows[0];
   }
@@ -82,7 +82,7 @@ class User {
       SELECT username, first_name, last_name, phone, join_at, last_login_at
       FROM users
       WHERE username = $1`, [username]);
-    if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+    if (!results.rows.length) throw new ExpressError('Username not found', 400);
 
     return results.rows[0];
    }
@@ -110,7 +110,7 @@ class User {
       ON messages.to_username = users.username
       WHERE messages.from_username = $1`, [username]);
 
-      if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+      if (!results.rows.length) throw new ExpressError('Username not found', 400);
 
       return results.rows.map(obj => ({
         id: obj.id,
@@ -149,7 +149,7 @@ class User {
       ON users.username = messages.from_username
       WHERE messages.to_username = $1`, [username]);
 
-      if (!results.rows.length) return next(new ExpressError('Username not found', 400));
+      if (!results.rows.length) throw new ExpressError('Username not found', 400);
 
       return results.rows.map(obj => ({
         id: obj.id,

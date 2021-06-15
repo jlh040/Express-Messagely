@@ -1,4 +1,4 @@
-\c messagely_test;
+\c messagely;
 
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;

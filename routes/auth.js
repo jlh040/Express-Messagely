@@ -6,26 +6,21 @@ const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
 
 /** POST /login - login: {username, password} => {token}
- *
- * Make sure to update their last-login!
- *
  **/
 
 router.post('/login', async (req, res, next) => {
-  try {
-    const { username, password } = req.body;
-    if (await User.authenticate(username, password)) {
-      const token = jwt.sign({username}, SECREY_KEY)
-      return res.json({token});
-    }
-    else {
-      return next(new ExpressError('Invalid username/password', 400));
-    }
+  const { username, password } = req.body;
+  if (!(username && password)) return next(new ExpressError('Please pass in a username and password', 400));
+
+  if (await User.authenticate(username, password)) {
+    const token = jwt.sign({username}, SECRET_KEY)
+    await User.updateLoginTimestamp(username);
+    return res.json({token});
   }
-  catch(e) {
-    return next(new ExpressError('Please pass in username and password', 400));
+  else {
+    return next(new ExpressError('Invalid username/password', 400));
   }
-})
+});
 
 
 
@@ -36,6 +31,23 @@ router.post('/login', async (req, res, next) => {
  *
  *  Make sure to update their last-login!
  */
+
+router.post('/register', async (req, res, next) => {
+  try {
+    const { username, password, first_name, last_name, phone } = req.body;
+    if (!(username && password && first_name && last_name && phone)) {
+      return next(new ExpressError('Username, password, first_name, last_name, and phone are required!', 400));
+    }
+
+    const results = await User.register({username, password, first_name, last_name, phone});
+    const token = jwt.sign({username}, SECRET_KEY);
+    await User.updateLoginTimestamp(username);
+    return res.json({token});
+  }
+  catch(e) {
+    return next(e);
+  }
+});
 
 
 
