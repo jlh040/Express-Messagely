@@ -2,8 +2,6 @@
 const db = require('../db');
 const ExpressError = require('../expressError');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { SECRET_KEY } = require('../config');
 
 
 
@@ -16,8 +14,8 @@ class User {
    */
 
   static async register({username, password, first_name, last_name, phone}) {
-	  try {
-      const hashedPW = bcrypt.hash(password, 12);
+    try {
+      const hashedPW = await bcrypt.hash(password, 12);
       const results = await db.query(`
         INSERT INTO users
         (username, password, first_name, last_name, phone)
@@ -26,12 +24,12 @@ class User {
         RETURNING username, password, first_name, last_name, phone`,
         [username, hashedPW, first_name, last_name, phone]);
       return results.rows[0];
-	  }
-	  catch(e) {
+    }
+    catch(e) {
       if (e.code === '23505') {
-        return next(new ExpressError('Username already exists', 400));
+        return next(new ExpressError('Username already exists', 400))
       }
-	  }
+    }
   }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
@@ -98,32 +96,32 @@ class User {
 
   static async messagesFrom(username) {
     const results = await db.query(`
-      SELECT m.id,
-             m.body,
-             m.sent_at,
-             m.read_at,
-             m.to_username,
-             t.first_name,
-             t.last_name,
-             t.phone
-      FROM users AS t
-      JOIN messages AS m
-      ON t.username = m.from_username
-      WHERE m.from_username = $1`, [username]);
+      SELECT id,
+             body,
+             sent_at,
+             read_at,
+             to_username,
+             first_name,
+             last_name,
+             phone
+      FROM messages
+      JOIN users
+      ON messages.to_username = users.username
+      WHERE messages.from_username = $1`, [username]);
 
       if (!results.rows.length) return next(new ExpressError('Username not found', 400));
 
       return results.rows.map(obj => ({
-        id: obj[m.id],
+        id: obj.id,
         to_user: {
-          username: obj[m.to_username],
-          first_name: obj[t.first_name],
-          last_name: obj[t.last_name],
-          phone: obj[t.phone]
+          username: obj.to_username,
+          first_name: obj.first_name,
+          last_name: obj.last_name,
+          phone: obj.phone
         },
-        body: obj[m.body],
-        sent_at: obj[m.sent_at],
-        read_at: obj[m.read_at]
+        body: obj.body,
+        sent_at: obj.sent_at,
+        read_at: obj.read_at
       }));
    }
 
@@ -137,32 +135,32 @@ class User {
 
   static async messagesTo(username) {
     const results = await db.query(`
-      SELECT m.id,
-             m.body,
-             m.sent_at,
-             m.read_at,
-             m.from_username,
-             f.first_name,
-             f.last_name,
-             f.phone
-      FROM users AS f
-      JOIN messages AS m
-      ON f.username = m.to_username
-      WHERE m.to_username = $1`, [username]);
+      SELECT id,
+             body,
+             sent_at,
+             read_at,
+             from_username,
+             first_name,
+             last_name,
+             phone
+      FROM users
+      JOIN messages
+      ON users.username = messages.from_username
+      WHERE messages.to_username = $1`, [username]);
 
       if (!results.rows.length) return next(new ExpressError('Username not found', 400));
 
       return results.rows.map(obj => ({
-        id: obj[m.id],
+        id: obj.id,
         from_user: {
-          username: obj[m.from_username],
-          first_name: obj[f.first_name],
-          last_name: obj[f.last_name],
-          phone: obj[f.phone]
+          username: obj.from_username,
+          first_name: obj.first_name,
+          last_name: obj.last_name,
+          phone: obj.phone
         },
-        body: obj[m.body],
-        sent_at: obj[m.sent_at],
-        read_at: obj[m.read_at]
+        body: obj.body,
+        sent_at: obj.sent_at,
+        read_at: obj.read_at
       }));
   }
 }

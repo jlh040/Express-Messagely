@@ -1,7 +1,7 @@
-\c messagely;
+\c messagely_test;
 
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
 
 CREATE TABLE users (
     username text PRIMARY KEY,
@@ -9,7 +9,7 @@ CREATE TABLE users (
     first_name text NOT NULL,
     last_name text NOT NULL,
     phone text NOT NULL,
-    join_at timestamp without time zone NOT NULL,
+    join_at timestamp without time zone DEFAULT current_timestamp NOT NULL,
     last_login_at timestamp with time zone
 );
 
