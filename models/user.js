@@ -135,6 +135,9 @@ class User {
    */
 
   static async messagesTo(username) {
+    const result = await db.query(`SELECT username FROM users WHERE username = $1`, [username]);
+    if (!result.rows[0]) throw new ExpressError('User not found', 400);
+
     const results = await db.query(`
       SELECT id,
              body,
@@ -149,20 +152,20 @@ class User {
       ON users.username = messages.from_username
       WHERE messages.to_username = $1`, [username]);
 
-      if (!results.rows.length) throw new ExpressError('Username not found', 400);
+    if (!results.rows.length) throw new ExpressError('No messages to this user', 400);
 
-      return results.rows.map(obj => ({
-        id: obj.id,
-        from_user: {
-          username: obj.from_username,
-          first_name: obj.first_name,
-          last_name: obj.last_name,
-          phone: obj.phone
-        },
-        body: obj.body,
-        sent_at: obj.sent_at,
-        read_at: obj.read_at
-      }));
+    return results.rows.map(obj => ({
+      id: obj.id,
+      from_user: {
+        username: obj.from_username,
+        first_name: obj.first_name,
+        last_name: obj.last_name,
+        phone: obj.phone
+      },
+      body: obj.body,
+      sent_at: obj.sent_at,
+      read_at: obj.read_at
+    }));
   }
 }
 

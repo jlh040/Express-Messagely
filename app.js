@@ -42,9 +42,10 @@ app.use(function(err, req, res, next) {
   const message = err.message;
   if (process.env.NODE_ENV != "test") console.error(err.stack);
 
-  return res.status(status).json({
+  return res.status(status).json({error: {
     status,
     message
+    }
   });
 });
 
