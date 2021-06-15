@@ -4,7 +4,7 @@
 
 - This application is a fully secure JSON API that I have created. It utilized JSON Web Tokens and the Bcrypt package to provide authentication and authorization for all endpoints. The API itself can be used to send private messages to other registered users.
 
-- ##### Routes (all data must be sent as JSON):
+- ##### **Routes (all data must be sent as JSON):**
 
   - **POST /auth/login**
     - Requires {username, password} and returns a JWT.
