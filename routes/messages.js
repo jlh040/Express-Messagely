@@ -1,3 +1,8 @@
+const express = require('express');
+const router = new express.Router();
+const db = require('../db');
+const Message = require('../models/message');
+
 /** GET /:id - get detail of message.
  *
  * => {message: {id,
@@ -10,6 +15,16 @@
  * Make sure that the currently-logged-in users is either the to or from user.
  *
  **/
+
+ router.get('/:id', async (req, res, next) => {
+     try {
+        const message = await Message.get(req.params.id);
+        return res.json({message});
+     }
+     catch(e) {
+         return next(e);
+     }
+ })
 
 
 /** POST / - post message.
@@ -27,4 +42,6 @@
  * Make sure that the only the intended recipient can mark as read.
  *
  **/
+
+module.exports = router;
 

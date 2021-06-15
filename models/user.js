@@ -55,7 +55,7 @@ class User {
     const results = await db.query(`UPDATE users SET last_login_at = current_timestamp WHERE username = $1
       RETURNING username, last_login_at`,
       [username]);
-    if (!results.rows.length) throw new ExpressError('Username not found', 400);
+    if (!results.rows.length) throw new ExpressError('Username not found', 404);
 
     return results.rows[0];
   }
@@ -82,7 +82,7 @@ class User {
       SELECT username, first_name, last_name, phone, join_at, last_login_at
       FROM users
       WHERE username = $1`, [username]);
-    if (!results.rows.length) throw new ExpressError('Username not found', 400);
+    if (!results.rows.length) throw new ExpressError('Username not found', 404);
 
     return results.rows[0];
    }
@@ -97,7 +97,7 @@ class User {
 
   static async messagesFrom(username) {
     const result = await db.query(`SELECT username FROM users WHERE username = $1`, [username]);
-    if (!result.rows[0]) throw new ExpressError('User not found', 400);
+    if (!result.rows[0]) throw new ExpressError('User not found', 404);
 
     const results = await db.query(`
       SELECT id,
@@ -139,7 +139,7 @@ class User {
 
   static async messagesTo(username) {
     const result = await db.query(`SELECT username FROM users WHERE username = $1`, [username]);
-    if (!result.rows[0]) throw new ExpressError('User not found', 400);
+    if (!result.rows[0]) throw new ExpressError('User not found', 404);
 
     const results = await db.query(`
       SELECT id,
