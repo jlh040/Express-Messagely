@@ -34,6 +34,19 @@ const Message = require('../models/message');
  *
  **/
 
+ router.post('/', async (req, res, next) => {
+     try {
+        const { from_username = req.user.username, to_username, body } = req.body;
+        const messageObj = {from_username, to_username, body};
+        const message = await Message.create(messageObj);
+
+        return res.json({message});
+     }
+     catch(e) {
+        return next(e);
+     }
+ })
+
 
 /** POST/:id/read - mark message as read:
  *
