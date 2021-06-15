@@ -52,9 +52,20 @@ const Message = require('../models/message');
  *
  *  => {message: {id, read_at}}
  *
- * Make sure that the only the intended recipient can mark as read.
+ * Make sure that only the intended recipient can mark as read.
  *
  **/
+
+ router.post('/:id/read', async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const result = await Message.markRead(id);
+        return res.json({message: {id, read_at: result.read_at}});
+    }
+    catch(e) {
+        return next(e);
+    }
+ })
 
 module.exports = router;
 
